@@ -1,0 +1,680 @@
+# ==========================================
+# Data Analysis Schema
+# Version: 1.0
+#
+# Purpose:
+# Data Analysis Agent Output Contract
+#
+# Scope:
+# 业务指标数据实现分析
+# 源数据分析
+# 数据粒度确认
+# 实体关系分析
+# 技术计算逻辑分析
+#
+# NOT INCLUDE:
+# FACT/DWS/ADS模型设计
+# SQL开发
+# ==========================================
+
+
+project:
+
+
+  project_id:
+
+    type: string
+
+    required: true
+
+
+  project_name:
+
+    type: string
+
+    required: true
+
+
+  business_domain:
+
+    type: string
+
+    required: false
+
+
+
+# ==========================================
+# 1. 数据资产分析
+# 目标：
+# 分析指标依赖哪些源数据
+# ==========================================
+
+data_asset_analysis:
+
+
+  metrics:
+
+
+    type: array
+
+
+    items:
+
+
+      metric_id:
+
+        type: string
+
+
+      metric_name:
+
+        type: string
+
+
+
+      required_business_objects:
+
+
+        type: array
+
+
+        description:
+          指标涉及的业务对象
+
+
+        items:
+
+          type: string
+
+
+
+      source_tables:
+
+
+        type: array
+
+
+        description:
+          候选源数据表
+
+
+        items:
+
+
+
+          table_name:
+
+            type: string
+
+
+
+          table_description:
+
+            type: string
+
+
+
+          source_system:
+
+            type: string
+
+
+
+          table_role:
+
+
+            enum:
+
+
+              - transaction
+
+              - master
+
+              - relation
+
+              - unknown
+
+
+
+          support_fields:
+
+
+            type: array
+
+
+            items:
+
+
+              field_name:
+
+                type: string
+
+
+              field_description:
+
+                type: string
+
+
+
+          missing_fields:
+
+
+            type: array
+
+
+            items:
+
+              type: string
+
+
+
+          support_status:
+
+
+            enum:
+
+
+              - supported
+
+              - partial
+
+              - unsupported
+
+              - unknown
+
+
+
+          analysis_note:
+
+
+            type: string
+
+
+
+
+
+# ==========================================
+# 2. 数据粒度分析
+# 目标：
+# 判断源表真实粒度
+# ==========================================
+
+
+grain_analysis:
+
+
+  tables:
+
+
+    type: array
+
+
+    items:
+
+
+      table_name:
+
+        type: string
+
+
+
+      business_grain:
+
+
+        type: string
+
+
+        description:
+          根据业务理解推断的粒度
+
+
+
+      technical_grain:
+
+
+        type: string
+
+
+        description:
+          数据记录粒度
+
+
+
+      grain_basis:
+
+
+        type: array
+
+
+        items:
+
+
+          type: string
+
+
+
+      candidate_keys:
+
+
+        type: array
+
+
+        items:
+
+
+          type: string
+
+
+
+      validation_items:
+
+
+        type: array
+
+
+        description:
+          需要验证的数据规则
+
+
+        items:
+
+
+          type: string
+
+
+
+      validation_sql:
+
+
+        type: array
+
+
+        items:
+
+
+          type: string
+
+
+
+      confidence:
+
+
+        enum:
+
+
+          - high
+
+          - medium
+
+          - low
+
+
+
+      confirmation_status:
+
+
+        enum:
+
+
+          - confirmed
+
+          - pending
+
+
+
+
+
+# ==========================================
+# 3. 实体关系分析
+# 目标：
+# 自动生成业务ER关系
+# ==========================================
+
+
+entity_relation_analysis:
+
+
+  entities:
+
+
+    type: array
+
+
+    items:
+
+
+      entity_name:
+
+        type: string
+
+
+
+      source_table:
+
+
+        type: string
+
+
+
+      relationships:
+
+
+        type: array
+
+
+        items:
+
+
+          target_entity:
+
+            type: string
+
+
+
+          relationship_type:
+
+
+            enum:
+
+
+              - one_to_one
+
+              - one_to_many
+
+              - many_to_one
+
+              - many_to_many
+
+
+
+          join_keys:
+
+
+            type: array
+
+
+            items:
+
+
+              source_field:
+
+                type: string
+
+
+              target_field:
+
+                type: string
+
+
+
+          relationship_basis:
+
+
+            type: string
+
+
+
+          confidence:
+
+
+            enum:
+
+
+              - high
+
+              - medium
+
+              - low
+
+
+
+
+
+# ==========================================
+# 4. 指标实现分析
+# 目标：
+# 从业务指标转换到技术实现
+# ==========================================
+
+
+metric_implementation_analysis:
+
+
+  metrics:
+
+
+    type: array
+
+
+    items:
+
+
+      metric_id:
+
+        type: string
+
+
+
+      metric_name:
+
+        type: string
+
+
+
+      business_definition:
+
+        type: string
+
+
+
+      source_analysis:
+
+
+        tables:
+
+
+          type: array
+
+
+          items:
+
+
+            table_name:
+
+              type: string
+
+
+            fields:
+
+
+              type: array
+
+
+              items:
+
+                type: string
+
+
+
+      technical_logic:
+
+
+        type: string
+
+
+
+      calculation_pseudocode:
+
+
+        type: string
+
+
+
+      filter_conditions:
+
+
+        type: array
+
+
+        items:
+
+
+          type: string
+
+
+
+      aggregation_logic:
+
+
+        type: string
+
+
+
+      duplicate_handling:
+
+
+        type: string
+
+
+
+      time_logic:
+
+
+        type: string
+
+
+
+      implementation_risk:
+
+
+        type: array
+
+
+        items:
+
+
+          type: string
+
+
+
+
+
+# ==========================================
+# 5. 数据质量风险
+# ==========================================
+
+
+data_quality_risk:
+
+
+  risks:
+
+
+    type: array
+
+
+    items:
+
+
+      risk_id:
+
+        type: string
+
+
+
+      related_metric:
+
+
+        type: string
+
+
+
+      related_table:
+
+
+        type: string
+
+
+
+      issue_description:
+
+
+        type: string
+
+
+
+      impact:
+
+
+        type: string
+
+
+
+      suggested_solution:
+
+
+        type: string
+
+
+
+      severity:
+
+
+        enum:
+
+
+          - high
+
+          - medium
+
+          - low
+
+
+
+
+
+# ==========================================
+# 6. 下一阶段输入要求
+# 传递给 Model Design Agent
+# ==========================================
+
+
+model_design_input:
+
+
+  confirmed_business_objects:
+
+
+    type: array
+
+
+    items:
+
+
+      type: string
+
+
+
+  confirmed_metrics:
+
+
+    type: array
+
+
+    items:
+
+
+      type: string
+
+
+
+  required_model_considerations:
+
+
+    type: array
+
+
+    items:
+
+
+      type: string

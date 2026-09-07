@@ -1,0 +1,233 @@
+# Grain Analysis
+# Version: 1.0
+# Generated: 2026-09-07
+
+# 项目信息
+project:
+  project_id: wens_dw_project
+  project_name: 农户生产异常预警分析看板
+
+# 源表粒度分析
+table_grain_analysis:
+
+  # 养猪养户档案
+  - table_name: wens_rearer_farm_pig
+    physical_table: tk_wens_rea_farm_info
+
+    business_grain:
+      description: 一个养户一条记录
+      entity: 养户
+      key_attributes:
+        - 养户编码
+        - 养户名称
+        - 业务组织
+
+    technical_grain:
+      primary_key: fmasterid
+      unique_fields:
+        - fmasterid
+      composite_key: null
+      grain_level: 单一实体
+
+    validation:
+      grain_check_sql: |
+        SELECT fmasterid, COUNT(*) as cnt
+        FROM tk_wens_rea_farm_info
+        GROUP BY fmasterid
+        HAVING COUNT(*) > 1
+      expected_result: 0 rows
+      grain_confidence: high
+
+    notes:
+      - fmasterid 是主数据内码，唯一标识一个养户
+      - 一个养户可以对应多个养殖场（通过分录 tk_wens_rearer_cage）
+      - 需要过滤 fenable='1'（可用状态）和 fstatus='C'（已审核）
+
+  # 养猪畜禽档案
+  - table_name: wens_recbrlrflk_pig
+    physical_table: tk_wens_recbrlrflk
+
+    business_grain:
+      description: 一个猪群一条记录
+      entity: 猪群
+      key_attributes:
+        - 猪群编码
+        - 养户
+        - 业务组织
+
+    technical_grain:
+      primary_key: fmasterid
+      unique_fields:
+        - fmasterid
+      composite_key: null
+      grain_level: 单一实体
+
+    validation:
+      grain_check_sql: |
+        SELECT fmasterid, COUNT(*) as cnt
+        FROM tk_wens_recbrlrflk
+        GROUP BY fmasterid
+        HAVING COUNT(*) > 1
+      expected_result: 0 rows
+      grain_confidence: high
+
+    notes:
+      - fmasterid 是主数据内码，唯一标识一个猪群
+      - 一个猪群属于一个养户（通过 fk_wens_recrearer 关联）
+      - 一个养户可以有多个猪群
+      - 需要过滤 fstatus='C'（已审核）
+
+  # 农户生产异常预警
+  - table_name: wens_production_anomaly
+    physical_table: tk_wens_production_anomal
+
+    business_grain:
+      description: 一条预警记录对应一个养户的一个猪群的一个预警事件
+      entity: 生产异常预警
+      key_attributes:
+        - 单据编号
+        - 养户
+        - 猪群编码
+        - 预警指标
+        - 预警等级
+
+    technical_grain:
+      primary_key: fbillno
+      unique_fields:
+        - fbillno
+      composite_key: null
+      grain_level: 单一实体
+
+    validation:
+      grain_check_sql: |
+        SELECT fbillno, COUNT(*) as cnt
+        FROM tk_wens_production_anomal
+        GROUP BY fbillno
+        HAVING COUNT(*) > 1
+      expected_result: 0 rows
+      grain_confidence: high
+
+    notes:
+      - fbillno 是单据编号，唯一标识一条预警记录
+      - 一条预警记录关联一个养户和一个猪群
+      - 同一个养户+猪群可以有多条预警记录（不同时间、不同预警指标）
+      - 需要过滤 fbillstatus='C'（已审核）
+
+  # 农户生产异常巡查工单
+  - table_name: wens_patrol_ticket
+    physical_table: tk_wens_patrol_ticket
+
+    business_grain:
+      description: 一条巡查工单对应一条预警记录的处理过程
+      entity: 巡查工单
+      key_attributes:
+        - 单据编号
+        - 养户
+        - 猪群编码
+        - 预警单据编号
+
+    technical_grain:
+      primary_key: fbillno
+      unique_fields:
+        - fbillno
+      composite_key: null
+      grain_level: 单一实体（含分录）
+
+    validation:
+      grain_check_sql: |
+        SELECT fbillno, COUNT(*) as cnt
+        FROM tk_wens_patrol_ticket
+        GROUP BY fbillno
+        HAVING COUNT(*) > 1
+      expected_result: 0 rows
+      grain_confidence: high
+
+    notes:
+      - fbillno 是单据编号，唯一标识一条巡查工单
+      - 一条巡查工单关联一条预警记录（通过 fk_wens_warning_billno）
+      - 一条预警记录可以对应多条巡查工单（多次巡查）
+      - 包含两个分录：风险项分录和原因分析分录
+      - 需要过滤 fbillstatus='C'（已审核）
+
+  # 原因分析及应对策略
+  - table_name: wens_handle_strategy
+    physical_table: tk_wens_handle_strategy
+
+    business_grain:
+      description: 一条策略配置对应一个组织下的一个风险类型
+      entity: 应对策略
+      key_attributes:
+        - 单据编码
+        - 组织
+        - 风险大类
+        - 风险项
+
+    technical_grain:
+      primary_key: fnumber
+      unique_fields:
+        - fnumber
+      composite_key: null
+      grain_level: 单一实体
+
+    validation:
+      grain_check_sql: |
+        SELECT fnumber, COUNT(*) as cnt
+        FROM tk_wens_handle_strategy
+        GROUP BY fnumber
+        HAVING COUNT(*) > 1
+      expected_result: 0 rows
+      grain_confidence: high
+
+    notes:
+      - fnumber 是单据编码，唯一标识一条策略配置
+      - 一个组织下可以有多条策略配置
+      - 需要过滤 fstatus='C'（已审核）
+
+# 粒度关系分析
+grain_relationships:
+
+  - relationship_id: R001
+    source_table: wens_production_anomaly
+    target_table: wens_rearer_farm_pig
+    relationship_type: many_to_one
+    source_grain: 预警记录
+    target_grain: 养户
+    join_field: fk_wens_basedatafield -> fmasterid
+    business_meaning: 一条预警记录属于一个养户
+
+  - relationship_id: R002
+    source_table: wens_production_anomaly
+    target_table: wens_recbrlrflk_pig
+    relationship_type: many_to_one
+    source_grain: 预警记录
+    target_grain: 猪群
+    join_field: fk_wens_recbrlrflk_pig -> fmasterid
+    business_meaning: 一条预警记录属于一个猪群
+
+  - relationship_id: R003
+    source_table: wens_patrol_ticket
+    target_table: wens_production_anomaly
+    relationship_type: many_to_one
+    source_grain: 巡查工单
+    target_grain: 预警记录
+    join_field: fk_wens_warning_billno -> fbillno
+    business_meaning: 一条巡查工单对应一条预警记录
+
+  - relationship_id: R004
+    source_table: wens_patrol_ticket
+    target_table: wens_handle_strategy
+    relationship_type: many_to_many
+    source_grain: 巡查工单
+    target_grain: 应对策略
+    join_field: tk_cause_analysis.fk_wens_handle_strategy -> fmasterid
+    business_meaning: 一条巡查工单可以关联多个应对策略
+
+# 汇总
+summary:
+  total_tables_analyzed: 5
+  grain_confidence: high
+  key_findings:
+    - 所有表都有明确的主键
+    - 表之间通过外键关联
+    - 业务粒度与技术粒度一致
+    - 需要注意分录表的粒度差异

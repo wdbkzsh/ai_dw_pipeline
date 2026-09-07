@@ -1,0 +1,183 @@
+# Entity Relation Analysis
+# Version: 1.0
+# Generated: 2026-09-07
+
+# 项目信息
+project:
+  project_id: wens_dw_project
+  project_name: 农户生产异常预警分析看板
+
+# 实体定义
+entities:
+
+  - entity_id: E001
+    entity_name: 养户
+    source_table: wens_rearer_farm_pig
+    physical_table: tk_wens_rea_farm_info
+    primary_key: fmasterid
+    business_key: fnumber
+    description: 参与养殖合作的农户，是生产管理的基本单位
+
+  - entity_id: E002
+    entity_name: 猪群
+    source_table: wens_recbrlrflk_pig
+    physical_table: tk_wens_recbrlrflk
+    primary_key: fmasterid
+    business_key: fnumber
+    description: 养户管理下的一个批次猪群，是生产核算的基本单位
+
+  - entity_id: E003
+    entity_name: 生产异常预警
+    source_table: wens_production_anomaly
+    physical_table: tk_wens_production_anomal
+    primary_key: fbillno
+    business_key: fbillno
+    description: 系统根据预设规则自动触发的生产异常告警
+
+  - entity_id: E004
+    entity_name: 巡查工单
+    source_table: wens_patrol_ticket
+    physical_table: tk_wens_patrol_ticket
+    primary_key: fbillno
+    business_key: fbillno
+    description: 针对生产异常预警创建的处理工单
+
+  - entity_id: E005
+    entity_name: 应对策略
+    source_table: wens_handle_strategy
+    physical_table: tk_wens_handle_strategy
+    primary_key: fnumber
+    business_key: fnumber
+    description: 针对异常原因制定的处理措施
+
+# 实体关系
+relationships:
+
+  # 养户 -> 猪群 (1:N)
+  - relationship_id: R001
+    relationship_name: 养户拥有猪群
+    source_entity:
+      entity_id: E001
+      entity_name: 养户
+      source_table: wens_rearer_farm_pig
+      join_field: fmasterid
+    target_entity:
+      entity_id: E002
+      entity_name: 猪群
+      source_table: wens_recbrlrflk_pig
+      join_field: fk_wens_recrearer
+    relationship_type: one_to_many
+    cardinality: 1:N
+    business_meaning: 一个养户可以拥有多个猪群
+    join_condition: wens_rearer_farm_pig.fmasterid = wens_recbrlrflk_pig.fk_wens_recrearer
+    confidence: high
+    validation_sql: |
+      SELECT
+        a.fmasterid as farmer_id,
+        COUNT(DISTINCT b.fmasterid) as pig_group_count
+      FROM tk_wens_rea_farm_info a
+      LEFT JOIN tk_wens_recbrlrflk b ON a.fmasterid = b.fk_wens_recrearer
+      GROUP BY a.fmasterid
+      HAVING COUNT(DISTINCT b.fmasterid) > 1
+
+  # 养户 -> 生产异常预警 (1:N)
+  - relationship_id: R002
+    relationship_name: 养户触发预警
+    source_entity:
+      entity_id: E001
+      entity_name: 养户
+      source_table: wens_rearer_farm_pig
+      join_field: fmasterid
+    target_entity:
+      entity_id: E003
+      entity_name: 生产异常预警
+      source_table: wens_production_anomaly
+      join_field: fk_wens_basedatafield
+    relationship_type: one_to_many
+    cardinality: 1:N
+    business_meaning: 一个养户可以有多条预警记录
+    join_condition: wens_rearer_farm_pig.fmasterid = wens_production_anomaly.fk_wens_basedatafield
+    confidence: high
+    validation_sql: null
+
+  # 猪群 -> 生产异常预警 (1:N)
+  - relationship_id: R003
+    relationship_name: 猪群触发预警
+    source_entity:
+      entity_id: E002
+      entity_name: 猪群
+      source_table: wens_recbrlrflk_pig
+      join_field: fmasterid
+    target_entity:
+      entity_id: E003
+      entity_name: 生产异常预警
+      source_table: wens_production_anomaly
+      join_field: fk_wens_recbrlrflk_pig
+    relationship_type: one_to_many
+    cardinality: 1:N
+    business_meaning: 一个猪群可以有多条预警记录
+    join_condition: wens_recbrlrflk_pig.fmasterid = wens_production_anomaly.fk_wens_recbrlrflk_pig
+    confidence: high
+    validation_sql: null
+
+  # 生产异常预警 -> 巡查工单 (1:N)
+  - relationship_id: R004
+    relationship_name: 预警生成工单
+    source_entity:
+      entity_id: E003
+      entity_name: 生产异常预警
+      source_table: wens_production_anomaly
+      join_field: fbillno
+    target_entity:
+      entity_id: E004
+      entity_name: 巡查工单
+      source_table: wens_patrol_ticket
+      join_field: fk_wens_warning_billno
+    relationship_type: one_to_many
+    cardinality: 1:N
+    business_meaning: 一条预警记录可以生成多条巡查工单
+    join_condition: wens_production_anomaly.fbillno = wens_patrol_ticket.fk_wens_warning_billno
+    confidence: high
+    validation_sql: null
+
+  # 巡查工单 -> 应对策略 (N:M)
+  - relationship_id: R005
+    relationship_name: 工单关联策略
+    source_entity:
+      entity_id: E004
+      entity_name: 巡查工单
+      source_table: wens_patrol_ticket
+      join_field: tk_cause_analysis.fk_wens_handle_strategy
+    target_entity:
+      entity_id: E005
+      entity_name: 应对策略
+      source_table: wens_handle_strategy
+      join_field: fmasterid
+    relationship_type: many_to_many
+    cardinality: N:M
+    business_meaning: 一条巡查工单可以关联多个应对策略，一个应对策略可以被多个工单使用
+    join_condition: wens_patrol_ticket.tk_cause_analysis.fk_wens_handle_strategy = wens_handle_strategy.fmasterid
+    confidence: high
+    validation_sql: null
+
+# ER 图描述
+er_diagram_description: |
+  [养户] --1:N-- [猪群]
+      |               |
+      1:N             1:N
+      |               |
+      v               v
+  [生产异常预警] --1:N-- [巡查工单] --N:M-- [应对策略]
+
+# 关系汇总
+summary:
+  total_entities: 5
+  total_relationships: 5
+  relationship_types:
+    one_to_many: 4
+    many_to_many: 1
+  key_insights:
+    - 养户是核心实体，关联猪群和预警
+    - 预警是业务事件，触发巡查工单
+    - 巡查工单关联应对策略，形成完整的业务闭环
+    - 所有关系都有明确的关联字段

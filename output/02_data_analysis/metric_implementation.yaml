@@ -1,0 +1,714 @@
+# Metric Implementation Analysis
+# Version: 1.0
+# Generated: 2026-09-07
+
+# 项目信息
+project:
+  project_id: wens_dw_project
+  project_name: 农户生产异常预警分析看板
+
+# 原子指标实现分析
+atomic_metrics:
+
+  # M001 - 生产异常农户数
+  - metric_id: M001
+    metric_name: 生产异常农户数
+    business_definition: 当前存在生产异常的养户数量
+
+    data_source:
+      primary_table: wens_production_anomaly
+      physical_table: tk_wens_production_anomal
+      required_fields:
+        - field: fk_wens_basedatafield
+          purpose: 养户标识，用于去重统计
+        - field: fk_wens_status
+          purpose: 预警状态，用于过滤有效预警
+      optional_fields: []
+
+    technical_logic:
+      description: 统计预警状态为"持续中"或"仅通知"的养户数量，按养户去重
+      pseudocode: |
+        COUNT(DISTINCT fk_wens_basedatafield)
+        WHERE fk_wens_status IN ('1', '3')  -- 持续中、仅通知
+      filter_conditions:
+        - field: fk_wens_status
+          operator: IN
+          values: ['1', '3']
+          description: 过滤有效预警状态
+      aggregation: COUNT DISTINCT
+      aggregation_field: fk_wens_basedatafield
+
+    data_risks:
+      - risk: 同一养户可能有多条预警记录
+        impact: 统计重复
+        mitigation: 使用 COUNT DISTINCT 去重
+      - risk: 预警状态枚举值可能不一致
+        impact: 过滤条件失效
+        mitigation: 需要确认枚举值定义
+
+    validation:
+      sample_sql: |
+        SELECT
+          COUNT(DISTINCT fk_wens_basedatafield) as anomaly_farmer_count
+        FROM tk_wens_production_anomal
+        WHERE fk_wens_status IN ('1', '3')
+          AND fbillstatus = 'C'
+
+  # M002 - 持续中预警农户数
+  - metric_id: M002
+    metric_name: 持续中预警农户数
+    business_definition: 预警状态为持续中的养户数量
+
+    data_source:
+      primary_table: wens_production_anomaly
+      physical_table: tk_wens_production_anomal
+      required_fields:
+        - field: fk_wens_basedatafield
+          purpose: 养户标识，用于去重统计
+        - field: fk_wens_status
+          purpose: 预警状态，用于过滤持续中状态
+
+    technical_logic:
+      description: 统计预警状态为"持续中"的养户数量，按养户去重
+      pseudocode: |
+        COUNT(DISTINCT fk_wens_basedatafield)
+        WHERE fk_wens_status = '1'  -- 持续中
+      filter_conditions:
+        - field: fk_wens_status
+          operator: =
+          values: '1'
+          description: 过滤持续中状态
+      aggregation: COUNT DISTINCT
+      aggregation_field: fk_wens_basedatafield
+
+    data_risks:
+      - risk: 同一养户可能有多条持续中预警
+        impact: 统计重复
+        mitigation: 使用 COUNT DISTINCT 去重
+
+    validation:
+      sample_sql: |
+        SELECT
+          COUNT(DISTINCT fk_wens_basedatafield) as ongoing_alert_farmer_count
+        FROM tk_wens_production_anomal
+        WHERE fk_wens_status = '1'
+          AND fbillstatus = 'C'
+
+  # M003 - 需巡查农户数
+  - metric_id: M003
+    metric_name: 需巡查农户数
+    business_definition: 预警状态为持续中且需要巡查的养户数量
+
+    data_source:
+      primary_table: wens_production_anomaly
+      physical_table: tk_wens_production_anomal
+      required_fields:
+        - field: fk_wens_basedatafield
+          purpose: 养户标识，用于去重统计
+        - field: fk_wens_status
+          purpose: 预警状态，用于过滤持续中状态
+        - field: fk_wens_is_generate_ticke
+          purpose: 是否巡查，用于过滤需巡查的记录
+
+    technical_logic:
+      description: 统计预警状态为"持续中"且需要巡查的养户数量，按养户去重
+      pseudocode: |
+        COUNT(DISTINCT fk_wens_basedatafield)
+        WHERE fk_wens_status = '1'  -- 持续中
+          AND fk_wens_is_generate_ticke = '是'  -- 需巡查
+      filter_conditions:
+        - field: fk_wens_status
+          operator: =
+          values: '1'
+          description: 过滤持续中状态
+        - field: fk_wens_is_generate_ticke
+          operator: =
+          values: '是'
+          description: 过滤需巡查的记录
+      aggregation: COUNT DISTINCT
+      aggregation_field: fk_wens_basedatafield
+
+    data_risks:
+      - risk: fk_wens_is_generate_ticke 是复选框，存储值可能是 '是'/'否' 或 '1'/'0'
+        impact: 过滤条件可能不匹配
+        mitigation: 需要确认实际存储值
+
+    validation:
+      sample_sql: |
+        SELECT
+          COUNT(DISTINCT fk_wens_basedatafield) as patrol_required_farmer_count
+        FROM tk_wens_production_anomal
+        WHERE fk_wens_status = '1'
+          AND fk_wens_is_generate_ticke = '是'
+          AND fbillstatus = 'C'
+
+  # M005 - 今日仅通知农户数
+  - metric_id: M005
+    metric_name: 今日仅通知农户数
+    business_definition: 当前时间下预警状态为仅通知的养户数量
+
+    data_source:
+      primary_table: wens_production_anomaly
+      physical_table: tk_wens_production_anomal
+      required_fields:
+        - field: fk_wens_basedatafield
+          purpose: 养户标识，用于去重统计
+        - field: fk_wens_status
+          purpose: 预警状态，用于过滤仅通知状态
+
+    technical_logic:
+      description: 统计当前预警状态为"仅通知"的养户数量，按养户去重
+      pseudocode: |
+        COUNT(DISTINCT fk_wens_basedatafield)
+        WHERE fk_wens_status = '3'  -- 仅通知
+      filter_conditions:
+        - field: fk_wens_status
+          operator: =
+          values: '3'
+          description: 过滤仅通知状态
+      aggregation: COUNT DISTINCT
+      aggregation_field: fk_wens_basedatafield
+      notes: 不按时间筛选，按当前状态筛选
+
+    data_risks:
+      - risk: "今日"的定义不明确
+        impact: 统计口径不一致
+        mitigation: 按业务确认，不按时间筛选，按当前状态筛选
+
+    validation:
+      sample_sql: |
+        SELECT
+          COUNT(DISTINCT fk_wens_basedatafield) as notify_only_farmer_count
+        FROM tk_wens_production_anomal
+        WHERE fk_wens_status = '3'
+          AND fbillstatus = 'C'
+
+  # M006 - 总养户数
+  - metric_id: M006
+    metric_name: 总养户数
+    business_definition: 当前有效的养户总数
+
+    data_source:
+      primary_table: wens_rearer_farm_pig
+      physical_table: tk_wens_rea_farm_info
+      required_fields:
+        - field: fmasterid
+          purpose: 养户标识，用于去重统计
+        - field: fenable
+          purpose: 使用状态，过滤可用养户
+        - field: fk_wens_status
+          purpose: 饲养状态，过滤在养养户
+        - field: fstatus
+          purpose: 数据状态，过滤已审核数据
+
+    technical_logic:
+      description: 统计使用状态为"可用"、饲养状态为"在养"、数据状态为"已审核"的养户数量
+      pseudocode: |
+        COUNT(DISTINCT fmasterid)
+        WHERE fenable = '1'  -- 可用
+          AND fk_wens_status = '1'  -- 在养
+          AND fstatus = 'C'  -- 已审核
+      filter_conditions:
+        - field: fenable
+          operator: =
+          values: '1'
+          description: 过滤可用状态
+        - field: fk_wens_status
+          operator: =
+          values: '1'
+          description: 过滤在养状态
+        - field: fstatus
+          operator: =
+          values: 'C'
+          description: 过滤已审核状态
+      aggregation: COUNT DISTINCT
+      aggregation_field: fmasterid
+
+    data_risks:
+      - risk: 养户状态可能不一致
+        impact: 统计结果不准确
+        mitigation: 严格按照业务确认的条件过滤
+
+    validation:
+      sample_sql: |
+        SELECT
+          COUNT(DISTINCT fmasterid) as total_farmer_count
+        FROM tk_wens_rea_farm_info
+        WHERE fenable = '1'
+          AND fk_wens_status = '1'
+          AND fstatus = 'C'
+
+  # M007 - 预警关闭数
+  - metric_id: M007
+    metric_name: 预警关闭数
+    business_definition: 预警状态为已关闭的记录数
+
+    data_source:
+      primary_table: wens_production_anomaly
+      physical_table: tk_wens_production_anomal
+      required_fields:
+        - field: fk_wens_status
+          purpose: 预警状态，用于过滤已关闭状态
+
+    technical_logic:
+      description: 统计预警状态为"已关闭"的记录数
+      pseudocode: |
+        COUNT(*)
+        WHERE fk_wens_status = '2'  -- 已关闭
+      filter_conditions:
+        - field: fk_wens_status
+          operator: =
+          values: '2'
+          description: 过滤已关闭状态
+      aggregation: COUNT
+
+    data_risks: []
+
+    validation:
+      sample_sql: |
+        SELECT
+          COUNT(*) as closed_alert_count
+        FROM tk_wens_production_anomal
+        WHERE fk_wens_status = '2'
+          AND fbillstatus = 'C'
+
+  # M008 - 预警总数
+  - metric_id: M008
+    metric_name: 预警总数
+    business_definition: 预警记录总数
+
+    data_source:
+      primary_table: wens_production_anomaly
+      physical_table: tk_wens_production_anomal
+      required_fields: []
+
+    technical_logic:
+      description: 统计所有预警记录数
+      pseudocode: |
+        COUNT(*)
+      filter_conditions: []
+      aggregation: COUNT
+
+    data_risks: []
+
+    validation:
+      sample_sql: |
+        SELECT
+          COUNT(*) as total_alert_count
+        FROM tk_wens_production_anomal
+        WHERE fbillstatus = 'C'
+
+  # M009 - 平均持续时长
+  - metric_id: M009
+    metric_name: 平均持续时长
+    business_definition: 预警持续时长的平均值
+
+    data_source:
+      primary_table: wens_production_anomaly
+      physical_table: tk_wens_production_anomal
+      required_fields:
+        - field: fk_wens_duration
+          purpose: 持续时长，用于计算平均值
+
+    technical_logic:
+      description: 计算预警持续时长的平均值
+      pseudocode: |
+        AVG(fk_wens_duration)
+      filter_conditions: []
+      aggregation: AVG
+      aggregation_field: fk_wens_duration
+
+    data_risks:
+      - risk: fk_wens_duration 可能为空或0
+        impact: 平均值计算不准确
+        mitigation: 需要过滤空值和0值
+
+    validation:
+      sample_sql: |
+        SELECT
+          AVG(fk_wens_duration) as avg_duration
+        FROM tk_wens_production_anomal
+        WHERE fk_wens_duration IS NOT NULL
+          AND fk_wens_duration > 0
+          AND fbillstatus = 'C'
+
+  # M010 - 巡查工单已完成数
+  - metric_id: M010
+    metric_name: 巡查工单已完成数
+    business_definition: 巡查工单状态为已完成的记录数
+
+    data_source:
+      primary_table: wens_patrol_ticket
+      physical_table: tk_wens_patrol_ticket
+      required_fields:
+        - field: fk_wens_atrol_ticket_stat
+          purpose: 巡查工单状态，用于过滤已完成状态
+
+    technical_logic:
+      description: 统计巡查工单状态为"已完成"的记录数
+      pseudocode: |
+        COUNT(*)
+        WHERE fk_wens_atrol_ticket_stat = '2'  -- 已完成
+      filter_conditions:
+        - field: fk_wens_atrol_ticket_stat
+          operator: =
+          values: '2'
+          description: 过滤已完成状态
+      aggregation: COUNT
+
+    data_risks: []
+
+    validation:
+      sample_sql: |
+        SELECT
+          COUNT(*) as completed_ticket_count
+        FROM tk_wens_patrol_ticket
+        WHERE fk_wens_atrol_ticket_stat = '2'
+          AND fbillstatus = 'C'
+
+  # M011 - 巡查工单总数
+  - metric_id: M011
+    metric_name: 巡查工单总数
+    business_definition: 巡查工单总数
+
+    data_source:
+      primary_table: wens_patrol_ticket
+      physical_table: tk_wens_patrol_ticket
+      required_fields: []
+
+    technical_logic:
+      description: 统计所有巡查工单数
+      pseudocode: |
+        COUNT(*)
+      filter_conditions: []
+      aggregation: COUNT
+
+    data_risks: []
+
+    validation:
+      sample_sql: |
+        SELECT
+          COUNT(*) as total_ticket_count
+        FROM tk_wens_patrol_ticket
+        WHERE fbillstatus = 'C'
+
+  # M012 - 复发记录数
+  - metric_id: M012
+    metric_name: 复发记录数
+    business_definition: 7天内复发的预警记录数
+
+    data_source:
+      primary_table: wens_production_anomaly
+      physical_table: tk_wens_production_anomal
+      required_fields:
+        - field: forgid
+          purpose: 组织，用于匹配相同组织
+        - field: fk_wens_basedatafield
+          purpose: 养户，用于匹配相同养户
+        - field: fk_wens_recbrlrflk_pig
+          purpose: 猪群编码，用于匹配相同猪群
+        - field: fk_wens_alert_metric
+          purpose: 预警指标，用于匹配相同指标
+        - field: fk_wens_alarm_level
+          purpose: 预警等级，用于匹配相同等级
+        - field: fk_wens_alarm_time
+          purpose: 预警时间，用于计算时间差
+
+    technical_logic:
+      description: 7天内同一组织、养户、猪群、预警指标、预警等级的预警记录视为复发
+      pseudocode: |
+        SELECT COUNT(DISTINCT a.fbillno)
+        FROM tk_wens_production_anomal a
+        INNER JOIN tk_wens_production_anomal b
+          ON a.forgid = b.forgid
+          AND a.fk_wens_basedatafield = b.fk_wens_basedatafield
+          AND a.fk_wens_recbrlrflk_pig = b.fk_wens_recbrlrflk_pig
+          AND a.fk_wens_alert_metric = b.fk_wens_alert_metric
+          AND a.fk_wens_alarm_level = b.fk_wens_alarm_level
+          AND a.fbillno <> b.fbillno
+        WHERE ABS(DATEDIFF(day, a.fk_wens_alarm_time, b.fk_wens_alarm_time)) <= 7
+      filter_conditions:
+        - description: 组织、养户、猪群、预警指标、预警等级一致
+        - description: 预警触发时间相隔不超过7天
+        - description: 不排除已关闭状态
+      aggregation: COUNT DISTINCT
+
+    data_risks:
+      - risk: 需要自关联查询，性能可能较差
+        impact: 查询时间长
+        mitigation: 考虑预计算或缓存
+      - risk: 时间字段格式可能不一致
+        impact: 时间差计算错误
+        mitigation: 统一时间格式
+
+    validation:
+      sample_sql: |
+        WITH recurrence AS (
+          SELECT DISTINCT a.fbillno
+          FROM tk_wens_production_anomal a
+          INNER JOIN tk_wens_production_anomal b
+            ON a.forgid = b.forgid
+            AND a.fk_wens_basedatafield = b.fk_wens_basedatafield
+            AND a.fk_wens_recbrlrflk_pig = b.fk_wens_recbrlrflk_pig
+            AND a.fk_wens_alert_metric = b.fk_wens_alert_metric
+            AND a.fk_wens_alarm_level = b.fk_wens_alarm_level
+            AND a.fbillno <> b.fbillno
+          WHERE ABS(DATEDIFF(day, a.fk_wens_alarm_time, b.fk_wens_alarm_time)) <= 7
+        )
+        SELECT COUNT(*) as recurrence_count FROM recurrence
+
+  # M013 - 风险大类记录数
+  - metric_id: M013
+    metric_name: 风险大类记录数
+    business_definition: 按风险大类统计的记录数
+
+    data_source:
+      primary_table: wens_patrol_ticket
+      physical_table: tk_wens_patrol_ticket
+      entry_table: tk_wens_risk_item_entry
+      required_fields:
+        - field: tk_wens_risk_item_entry.fk_wens_risk_item
+          purpose: 风险大类，用于分组统计
+
+    technical_logic:
+      description: 按风险大类分组统计巡查工单分录数
+      pseudocode: |
+        SELECT fk_wens_risk_item, COUNT(*)
+        FROM tk_wens_risk_item_entry
+        GROUP BY fk_wens_risk_item
+      filter_conditions: []
+      aggregation: COUNT
+      group_by: fk_wens_risk_item
+
+    data_risks: []
+
+    validation:
+      sample_sql: |
+        SELECT
+          fk_wens_risk_item as risk_category,
+          COUNT(*) as record_count
+        FROM tk_wens_patrol_ticket pt
+        JOIN tk_wens_risk_item_entry rie ON pt.fbillno = rie.fbillno
+        WHERE pt.fbillstatus = 'C'
+        GROUP BY fk_wens_risk_item
+
+  # M014 - 策略采纳记录数
+  - metric_id: M014
+    metric_name: 策略采纳记录数
+    business_definition: 策略是否采纳为"是"的记录数
+
+    data_source:
+      primary_table: wens_patrol_ticket
+      physical_table: tk_wens_patrol_ticket
+      entry_table: tk_wens_risk_item_entry
+      required_fields:
+        - field: tk_wens_risk_item_entry.fk_wens_custom_is_adopt
+          purpose: 是否采纳，用于过滤采纳的记录
+
+    technical_logic:
+      description: 统计策略采纳状态为"是"的巡查工单分录数
+      pseudocode: |
+        COUNT(*)
+        WHERE fk_wens_custom_is_adopt = '1'  -- 是
+      filter_conditions:
+        - field: fk_wens_custom_is_adopt
+          operator: =
+          values: '1'
+          description: 过滤采纳的记录
+      aggregation: COUNT
+
+    data_risks:
+      - risk: fk_wens_custom_is_adopt 存储值可能是 '是'/'否' 或 '1'/'0'
+        impact: 过滤条件可能不匹配
+        mitigation: 需要确认实际存储值
+
+    validation:
+      sample_sql: |
+        SELECT
+          COUNT(*) as adopted_count
+        FROM tk_wens_patrol_ticket pt
+        JOIN tk_wens_risk_item_entry rie ON pt.fbillno = rie.fbillno
+        WHERE rie.fk_wens_custom_is_adopt = '1'
+          AND pt.fbillstatus = 'C'
+
+# 复合指标实现分析
+derived_metrics:
+
+  # C001 - 生产异常农户占比
+  - metric_id: C001
+    metric_name: 生产异常农户占比
+    business_definition: 异常农户占总养户的比例
+    formula: M001 / M006
+    components:
+      - metric_id: M001
+        role: numerator
+      - metric_id: M006
+        role: denominator
+    pseudocode: |
+      (SELECT COUNT(DISTINCT fk_wens_basedatafield) FROM tk_wens_production_anomal WHERE fk_wens_status IN ('1', '3') AND fbillstatus = 'C')
+      /
+      (SELECT COUNT(DISTINCT fmasterid) FROM tk_wens_rea_farm_info WHERE fenable = '1' AND fk_wens_status = '1' AND fstatus = 'C')
+
+  # C002 - 预警关闭占比
+  - metric_id: C002
+    metric_name: 预警关闭占比
+    business_definition: 已关闭预警占总预警的比例
+    formula: M007 / M008
+    components:
+      - metric_id: M007
+        role: numerator
+      - metric_id: M008
+        role: denominator
+    pseudocode: |
+      (SELECT COUNT(*) FROM tk_wens_production_anomal WHERE fk_wens_status = '2' AND fbillstatus = 'C')
+      /
+      (SELECT COUNT(*) FROM tk_wens_production_anomal WHERE fbillstatus = 'C')
+
+  # C003 - 有效干涉率
+  - metric_id: C003
+    metric_name: 有效干涉率
+    business_definition: 巡查工单完成率
+    formula: 有已完成工单的预警数 / 预警总数
+    components:
+      - metric_id: M010
+        role: numerator
+      - metric_id: M008
+        role: denominator
+    pseudocode: |
+      (SELECT COUNT(DISTINCT fk_wens_warning_billno) FROM tk_wens_patrol_ticket WHERE fk_wens_atrol_ticket_stat = '2' AND fbillstatus = 'C')
+      /
+      (SELECT COUNT(*) FROM tk_wens_production_anomal WHERE fbillstatus = 'C')
+
+  # C004 - 7天复发率
+  - metric_id: C004
+    metric_name: 7天复发率
+    business_definition: 7天内复发预警的比例
+    formula: M012 / M008
+    components:
+      - metric_id: M012
+        role: numerator
+      - metric_id: M008
+        role: denominator
+    pseudocode: |
+      (复发记录数)
+      /
+      (SELECT COUNT(*) FROM tk_wens_production_anomal WHERE fbillstatus = 'C')
+
+  # C005 - 风险大类占比
+  - metric_id: C005
+    metric_name: 风险大类占比
+    business_definition: 各风险大类的分布比例
+    formula: M013 / 预警总数
+    components:
+      - metric_id: M013
+        role: numerator
+      - metric_id: M008
+        role: denominator
+    pseudocode: |
+      (SELECT COUNT(*) FROM tk_wens_risk_item_entry rie JOIN tk_wens_patrol_ticket pt ON rie.fbillno = pt.fbillno WHERE pt.fbillstatus = 'C' GROUP BY rie.fk_wens_risk_item)
+      /
+      (SELECT COUNT(*) FROM tk_wens_production_anomal WHERE fbillstatus = 'C')
+
+  # C006 - 策略采纳率
+  - metric_id: C006
+    metric_name: 策略采纳率
+    business_definition: 策略被采纳的比例
+    formula: M014 / 预警总数
+    components:
+      - metric_id: M014
+        role: numerator
+      - metric_id: M008
+        role: denominator
+    pseudocode: |
+      (SELECT COUNT(*) FROM tk_wens_risk_item_entry rie JOIN tk_wens_patrol_ticket pt ON rie.fbillno = pt.fbillno WHERE rie.fk_wens_custom_is_adopt = '1' AND pt.fbillstatus = 'C')
+      /
+      (SELECT COUNT(*) FROM tk_wens_production_anomal WHERE fbillstatus = 'C')
+
+# 趋势指标实现分析
+trend_metrics:
+
+  # T001 - 预警类型趋势
+  - metric_id: T001
+    metric_name: 预警类型趋势
+    time_dimension: 月份
+    analysis_dimension: 预警指标
+    measure_metric: 异常养户数
+    pseudocode: |
+      SELECT
+        DATE_FORMAT(fk_wens_alarm_time, '%Y-%m') as month,
+        fk_wens_alert_metric as alert_metric,
+        COUNT(DISTINCT fk_wens_basedatafield) as anomaly_farmer_count
+      FROM tk_wens_production_anomal
+      WHERE fk_wens_status IN ('1', '3')
+        AND fbillstatus = 'C'
+      GROUP BY DATE_FORMAT(fk_wens_alarm_time, '%Y-%m'), fk_wens_alert_metric
+
+  # T002 - 预警等级趋势
+  - metric_id: T002
+    metric_name: 预警等级趋势
+    time_dimension: 月份
+    analysis_dimension: 预警等级
+    measure_metric: 异常养户数
+    pseudocode: |
+      SELECT
+        DATE_FORMAT(fk_wens_alarm_time, '%Y-%m') as month,
+        fk_wens_alarm_level as alarm_level,
+        COUNT(DISTINCT fk_wens_basedatafield) as anomaly_farmer_count
+      FROM tk_wens_production_anomal
+      WHERE fk_wens_status IN ('1', '3')
+        AND fbillstatus = 'C'
+      GROUP BY DATE_FORMAT(fk_wens_alarm_time, '%Y-%m'), fk_wens_alarm_level
+
+  # T003 - 平均持续时长趋势
+  - metric_id: T003
+    metric_name: 平均持续时长趋势
+    time_dimension: 月份
+    analysis_dimension: []
+    measure_metric: 平均持续时长
+    pseudocode: |
+      SELECT
+        DATE_FORMAT(fk_wens_alarm_time, '%Y-%m') as month,
+        AVG(fk_wens_duration) as avg_duration
+      FROM tk_wens_production_anomal
+      WHERE fk_wens_duration IS NOT NULL
+        AND fk_wens_duration > 0
+        AND fbillstatus = 'C'
+      GROUP BY DATE_FORMAT(fk_wens_alarm_time, '%Y-%m')
+
+  # T004 - 7天复发率趋势
+  - metric_id: T004
+    metric_name: 7天复发率趋势
+    time_dimension: 月份
+    analysis_dimension: []
+    measure_metric: 7天复发率
+    pseudocode: |
+      -- 按月计算复发率
+      -- 需要先计算每月的复发记录数和预警总数，然后计算比率
+
+  # T005 - 有效干涉率趋势
+  - metric_id: T005
+    metric_name: 有效干涉率趋势
+    time_dimension: 月份
+    analysis_dimension: []
+    measure_metric: 有效干涉率
+    pseudocode: |
+      SELECT
+        DATE_FORMAT(pt.fcreatetime, '%Y-%m') as month,
+        COUNT(DISTINCT CASE WHEN pt.fk_wens_atrol_ticket_stat = '2' THEN pt.fk_wens_warning_billno END) * 1.0
+        / COUNT(DISTINCT pa.fbillno) as interference_rate
+      FROM tk_wens_production_anomal pa
+      LEFT JOIN tk_wens_patrol_ticket pt ON pa.fbillno = pt.fk_wens_warning_billno
+      WHERE pa.fbillstatus = 'C'
+      GROUP BY DATE_FORMAT(pt.fcreatetime, '%Y-%m')
+
+# 汇总
+summary:
+  total_metrics: 25
+  atomic_metrics: 14
+  derived_metrics: 6
+  trend_metrics: 5
+  implementation_status: 可实现
+  key_technical_challenges:
+    - M012 复发记录数需要自关联查询
+    - C003 有效干涉率需要跨表关联
+    - 趋势指标需要时间格式化
