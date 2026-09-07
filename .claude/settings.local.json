@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import pandas as pd; df = pd.read_excel\\('input/requirement/农户生产异常预警分析报告口径.xlsx'\\); print\\(df.to_string\\(\\)\\)\")",
+      "Bash(powershell -Command \"Import-Excel -Path 'input/requirement/农户生产异常预警分析报告口径.xlsx' | Format-Table -AutoSize\")"
+    ]
+  }
+}

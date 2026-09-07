@@ -1,0 +1,150 @@
+schema_version: '1.1'
+source:
+  system: 苍穹数据字典
+  input_type: full_html
+  parser: cq_dict_batch_to_yaml
+  file: tk_wens_handle_strategy.html
+table:
+  entity_id: wens_handle_strategy
+  name: 原因分析及应对策略
+  physical_table: tk_wens_handle_strategy
+  databases:
+  - rearer_breeding
+  - next_rearer_fatten
+  application: 育肥作业管理
+  application_description: ''
+  inheritance_path: 基础资料模板（bos_basetpl） -> 基础资料模板（wens_fatten_basetpl） -> 原因分析及应对策略（wens_handle_strategy）
+fields:
+- storage: fnumber
+  identifier: number
+  name: 单据编码
+  control_type: 文本
+  required: true
+- storage: fname
+  identifier: name
+  name: 名称
+  control_type: 多语言文本
+  required: true
+- storage: fstatus
+  identifier: status
+  name: 数据状态
+  control_type: 单据状态
+  enum:
+    A: 暂存
+    B: 已提交
+    C: 已审核
+- storage: fcreatorid
+  identifier: creator
+  name: 创建人
+  control_type: 人员
+  reference: bos_user
+- storage: fmodifierid
+  identifier: modifier
+  name: 修改人
+  control_type: 人员
+  reference: bos_user
+- storage: fenable
+  identifier: enable
+  name: 使用状态
+  control_type: 单据状态
+  enum:
+    '0': 禁用
+    '1': 可用
+- storage: fcreatetime
+  identifier: createtime
+  name: 创建时间
+  control_type: 日期
+- storage: fmodifytime
+  identifier: modifytime
+  name: 修改时间
+  control_type: 日期
+- storage: fmasterid
+  identifier: masterid
+  name: 主数据内码
+  control_type: 主数据内码
+- storage: fk_wens_combofield
+  identifier: wens_org_hierarchy
+  name: 组织层级
+  control_type: 下拉列表
+  enum:
+    '1': '1'
+    '2': '2'
+    '4': '4'
+    '5': '5'
+- storage: fk_wens_org
+  identifier: wens_org
+  name: 组织
+  control_type: 组织
+  reference: bos_org
+- storage: ''
+  identifier: wens_time_range
+  name: 生效时间
+  control_type: DateRangeField
+- storage: fk_wens_patrol_risk_type
+  identifier: wens_patrol_risk_category
+  name: 风险大类
+  control_type: 基础资料
+  reference: wens_patrol_risk_category
+- storage: fk_wens_risk_project
+  identifier: wens_risk_project
+  name: 风险项
+  control_type: 基础资料
+  reference: wens_risk_project
+- storage: fk_wens_tactic
+  identifier: wens_strategy
+  name: 对应策略
+  control_type: 基础资料
+  reference: wens_strategy
+entries: []
+relationships:
+- source_entity: wens_handle_strategy
+  source_scope: header
+  source_storage: fcreatorid
+  source_identifier: creator
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_handle_strategy
+  source_scope: header
+  source_storage: fmodifierid
+  source_identifier: modifier
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_handle_strategy
+  source_scope: header
+  source_storage: fk_wens_org
+  source_identifier: wens_org
+  target_entity: bos_org
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_handle_strategy
+  source_scope: header
+  source_storage: fk_wens_patrol_risk_type
+  source_identifier: wens_patrol_risk_category
+  target_entity: wens_patrol_risk_category
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_handle_strategy
+  source_scope: header
+  source_storage: fk_wens_risk_project
+  source_identifier: wens_risk_project
+  target_entity: wens_risk_project
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_handle_strategy
+  source_scope: header
+  source_storage: fk_wens_tactic
+  source_identifier: wens_strategy
+  target_entity: wens_strategy
+  kind: ui_reference
+  cardinality: unknown
+metadata_gaps:
+- physical_primary_key
+- database_data_types
+- length_precision_scale
+- nullability
+- default_values
+- partition_columns
+- physical_join_keys
+- relationship_cardinality

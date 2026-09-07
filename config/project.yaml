@@ -1,0 +1,380 @@
+# ==========================================
+# AI Data Warehouse Pipeline Project Config
+# Version: 1.0
+# ==========================================
+
+
+# 项目信息
+project:
+
+  project_id: wens_dw_project
+
+  project_name: AI数仓开发流程项目
+
+  description: >
+    基于AI Agent辅助完成数仓项目需求分析、
+    指标分析、数据分析、模型设计及SQL开发。
+
+
+  language:
+
+    default: zh-CN
+
+
+
+# 当前项目阶段
+
+stage:
+
+  current:
+
+    requirement_analysis
+
+
+  available:
+
+    - requirement_analysis
+
+    - data_analysis
+
+    - model_design
+
+    - mapping
+
+    - sql_generate
+
+    - review
+
+
+
+# 输入目录配置
+
+input:
+
+
+  root:
+
+    ./input
+
+
+
+  requirement:
+
+
+    path:
+
+      ./input/requirement
+
+
+    description:
+
+      业务需求文档、指标需求说明
+
+
+
+  prototype:
+
+
+    path:
+
+      ./input/prototype
+
+
+    description:
+
+      原型图、页面设计文件
+
+
+
+  metadata:
+
+
+    path:
+
+      ./input/metadata
+
+
+    description:
+
+      数据字典、表结构、字段说明
+
+
+
+# 输出目录配置
+
+output:
+
+
+  root:
+
+    ./output
+
+
+
+  requirement_analysis:
+
+
+    path:
+
+      ./output/01_business_analysis
+
+
+    files:
+
+
+      business_document:
+
+        business_analysis.md
+
+
+      metric_model:
+
+        business_metric_analysis.yaml
+
+
+      confirmation:
+
+        metric_confirm.xlsx
+
+
+      questions:
+
+        question_list.md
+
+
+
+  data_analysis:
+
+
+    path:
+
+      ./output/02_data_analysis
+
+
+
+  model_design:
+
+
+    path:
+
+      ./output/03_model_design
+
+
+
+  mapping:
+
+
+    path:
+
+      ./output/04_mapping
+
+
+
+  sql:
+
+
+    path:
+
+      ./output/05_sql
+
+
+
+  review:
+
+
+    path:
+
+      ./output/06_review
+
+
+
+# Schema配置
+
+schema:
+
+
+  root:
+
+    ./schema
+
+
+
+  requirement_analysis:
+
+
+    business_metric:
+
+      ./schema/business_metric_schema.yaml
+
+
+
+# Agent配置
+
+agents:
+
+
+  requirement_analysis:
+
+
+    enabled:
+
+      true
+
+
+    command:
+
+      .claude/commands/requirement-analysis.md
+
+
+
+  data_analysis:
+
+
+    enabled:
+
+      true
+
+
+    command:
+
+      .claude/commands/data-analysis.md
+
+
+
+  model_design:
+
+
+    enabled:
+
+      true
+
+
+    command:
+
+      .claude/commands/model-design.md
+
+
+
+  mapping:
+
+
+    enabled:
+
+      true
+
+
+    command:
+
+      .claude/commands/mapping-generate.md
+
+
+
+  sql:
+
+
+    enabled:
+
+      true
+
+
+    command:
+
+      .claude/commands/sql-generate.md
+
+
+
+  review:
+
+
+    enabled:
+
+      true
+
+
+    command:
+
+      .claude/commands/review.md
+
+
+
+# 输出规范
+
+output_rules:
+
+
+  markdown:
+
+
+    enabled:
+
+      true
+
+
+    purpose:
+
+      human_readable
+
+
+
+  yaml:
+
+
+    enabled:
+
+      true
+
+
+    purpose:
+
+      agent_consumable
+
+
+
+  excel:
+
+
+    enabled:
+
+      true
+
+
+    purpose:
+
+      business_confirmation
+
+
+
+# AI行为约束
+
+ai_rules:
+
+
+  cannot_assume:
+
+    - 不允许虚构字段
+
+    - 不允许修改业务口径
+
+    - 不允许补充不存在指标
+
+
+  must_confirm:
+
+
+    - 指标统计口径
+
+    - 时间范围定义
+
+    - 状态定义
+
+    - 去重规则
+
+
+  analysis_principle:
+
+
+    - 先理解业务
+
+    - 再拆解指标
+
+    - 最后判断数据支撑能力

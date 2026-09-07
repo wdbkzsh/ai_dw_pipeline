@@ -1,0 +1,297 @@
+schema_version: '1.1'
+source:
+  system: 苍穹数据字典
+  input_type: full_html
+  parser: cq_dict_batch_to_yaml
+  file: tk_wens_patrol_ticket.html
+table:
+  entity_id: wens_patrol_ticket
+  name: 农户生产异常巡查工单
+  physical_table: tk_wens_patrol_ticket
+  databases:
+  - rearer_breeding
+  - next_rearer_fatten
+  application: 育肥作业管理
+  application_description: ''
+  inheritance_path: 单据模板（bos_billtpl） -> 单据带组织模板（bos_billorgtpl） -> 农户生产异常巡查工单（wens_patrol_ticket）
+fields:
+- storage: fbillno
+  identifier: billno
+  name: 单据编号
+  control_type: 单据编号
+  required: true
+- storage: fbillstatus
+  identifier: billstatus
+  name: 单据状态
+  control_type: 单据状态
+  required: true
+  enum:
+    A: 暂存
+    B: 已提交
+    C: 已审核
+- storage: fcreatorid
+  identifier: creator
+  name: 创建人
+  control_type: 人员
+  reference: bos_user
+- storage: fmodifierid
+  identifier: modifier
+  name: 修改人
+  control_type: 人员
+  reference: bos_user
+- storage: fauditorid
+  identifier: auditor
+  name: 审核人
+  control_type: 人员
+  reference: bos_user
+- storage: fauditdate
+  identifier: auditdate
+  name: 审核日期
+  control_type: 长日期
+- storage: fmodifytime
+  identifier: modifytime
+  name: 修改时间
+  control_type: 日期
+- storage: fcreatetime
+  identifier: createtime
+  name: 创建时间
+  control_type: 日期
+- storage: forgid
+  identifier: org
+  name: 组织
+  control_type: 组织
+  reference: bos_org
+- storage: fk_wens_basedatafield
+  identifier: wens_rearer_farm_pig
+  name: 养户
+  control_type: 基础资料
+  reference: wens_rearer_farm_pig
+- storage: fk_wens_recbrlrflk_pig
+  identifier: wens_recbrlrflk_pig
+  name: 猪群编码
+  control_type: 基础资料
+  reference: wens_recbrlrflk_pig
+- storage: fk_wens_alert_metric
+  identifier: wens_alert_metric
+  name: 预警指标
+  control_type: 下拉列表
+  enum:
+    '1': 两周死淘率
+    '2': 五周死淘率
+    '3': 单日死淘率
+    '4': 连续2天死淘率
+    '5': 连续3天采食量
+    '6': 连续4天死
+    '7': 单日采食量
+    '8': 连续2天采食量
+    '9': 连续3天采食量
+- storage: fk_wens_alarm_level
+  identifier: wens_alarm_level
+  name: 预警等级
+  control_type: 下拉列表
+  enum:
+    '1': 一级告警
+    '2': 二级告警
+    '3': 三级告警
+    '4': 四级告警
+- storage: fk_wens_alarm_value
+  identifier: wens_alarm_value
+  name: 触发预警时数值
+  control_type: 文本
+- storage: fk_wens_alarm_time
+  identifier: wens_alarm_time
+  name: 预警时间
+  control_type: 长日期
+- storage: fk_wens_status
+  identifier: wens_status
+  name: 预警状态
+  control_type: 下拉列表
+  enum:
+    '1': 持续中
+    '2': 已关闭
+    '3': 仅通知
+- storage: fk_wens_creator
+  identifier: wens_creator
+  name: 创建人
+  control_type: 人员
+  reference: bos_user
+- storage: fk_wens_auditor
+  identifier: wens_auditor
+  name: 审核人
+  control_type: 人员
+  reference: bos_user
+- storage: fk_wens_executor
+  identifier: wens_executor
+  name: 执行人
+  control_type: 人员
+  reference: bos_user
+- storage: fk_wens_atrol_ticket_stat
+  identifier: wens_atrol_ticket_status
+  name: 巡查工单状态
+  control_type: 下拉列表
+  enum:
+    '1': 未完成
+    '2': 已完成
+    '3': 未完成(过期)
+- storage: fk_wens_warning_billno
+  identifier: wens_warning_billno
+  name: 预警单据编号
+  control_type: 文本
+entries:
+- storage: tk_wens_risk_item_entry
+  identifier: wens_risk_item_entry
+  name: 单据体
+  control_type: 分录
+  fields:
+  - storage: fk_wens_risk_item
+    identifier: wens_risk_item
+    name: 自定义风险大类
+    control_type: 文本
+    required: true
+  - storage: fk_wens_custom_risk_iteme
+    identifier: wens_custom_risk_iteme
+    name: 自定义风险项
+    control_type: 文本
+    required: true
+  - storage: fk_wens_custom_policy
+    identifier: wens_custom_policy
+    name: 自定义策略
+    control_type: 文本
+    required: true
+  - storage: fk_wens_custom_is_execute
+    identifier: wens_custom_is_execute
+    name: 是否执行
+    control_type: 下拉列表
+    enum:
+      '1': 是
+      '2': 否
+  - storage: fk_wens_custom_is_adopt
+    identifier: wens_custom_is_adopt
+    name: 是否采纳
+    control_type: 下拉列表
+    enum:
+      '1': 是
+      '2': 否
+- storage: tk_cause_analysis
+  identifier: wens_entryentity
+  name: 单据体
+  control_type: 分录
+  fields:
+  - storage: fk_wens_handle_strategy
+    identifier: wens_handle_strategy
+    name: 应对策略
+    control_type: 基础资料
+    reference: wens_handle_strategy
+  - storage: ''
+    identifier: wens_patrol_risk_category
+    name: 风险大类
+    control_type: 基础资料属性
+    notes:
+    - 取自【应对策略】
+  - storage: ''
+    identifier: wens_risk_project
+    name: 风险项
+    control_type: 基础资料属性
+    notes:
+    - 取自【应对策略】
+  - storage: ''
+    identifier: wens_wens_strategy
+    name: 对应措施
+    control_type: 基础资料属性
+    notes:
+    - 取自【应对策略】
+  - storage: fk_wens_is_execute
+    identifier: wens_is_execute
+    name: 是否执行
+    control_type: 下拉列表
+    enum:
+      '1': 是
+      '2': 否
+  - storage: fk_wens_is_adopt
+    identifier: wens_is_adopt
+    name: 是否采纳
+    control_type: 下拉列表
+    enum:
+      '1': 是
+      '2': 否
+relationships:
+- source_entity: wens_patrol_ticket
+  source_scope: header
+  source_storage: fcreatorid
+  source_identifier: creator
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_patrol_ticket
+  source_scope: header
+  source_storage: fmodifierid
+  source_identifier: modifier
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_patrol_ticket
+  source_scope: header
+  source_storage: fauditorid
+  source_identifier: auditor
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_patrol_ticket
+  source_scope: header
+  source_storage: forgid
+  source_identifier: org
+  target_entity: bos_org
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_patrol_ticket
+  source_scope: header
+  source_storage: fk_wens_basedatafield
+  source_identifier: wens_rearer_farm_pig
+  target_entity: wens_rearer_farm_pig
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_patrol_ticket
+  source_scope: header
+  source_storage: fk_wens_recbrlrflk_pig
+  source_identifier: wens_recbrlrflk_pig
+  target_entity: wens_recbrlrflk_pig
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_patrol_ticket
+  source_scope: header
+  source_storage: fk_wens_creator
+  source_identifier: wens_creator
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_patrol_ticket
+  source_scope: header
+  source_storage: fk_wens_auditor
+  source_identifier: wens_auditor
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_patrol_ticket
+  source_scope: header
+  source_storage: fk_wens_executor
+  source_identifier: wens_executor
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: tk_cause_analysis
+  parent_entity: wens_patrol_ticket
+  source_scope: entry:tk_cause_analysis
+  source_storage: fk_wens_handle_strategy
+  source_identifier: wens_handle_strategy
+  target_entity: wens_handle_strategy
+  kind: ui_reference
+  cardinality: unknown
+metadata_gaps:
+- physical_primary_key
+- database_data_types
+- length_precision_scale
+- nullability
+- default_values
+- partition_columns
+- physical_join_keys
+- relationship_cardinality

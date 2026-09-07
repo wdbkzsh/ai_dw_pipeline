@@ -1,0 +1,767 @@
+# =====================================
+# Business Metric Analysis Schema
+# Version: 1.1
+# Purpose:
+# Requirement Analysis Agent Output Contract
+#
+# Scope:
+# 需求理解
+# 指标拆解
+# 数据可实现性初判
+#
+# NOT INCLUDE:
+# SQL
+# Mapping
+# FACT/DWS/ADS设计
+# =====================================
+
+
+# 项目信息
+project:
+
+
+  project_id:
+
+    type: string
+
+    required: true
+
+    description:
+      项目唯一标识
+
+
+
+  project_name:
+
+    type: string
+
+    required: true
+
+    description:
+      项目名称
+
+
+
+  business_domain:
+
+    type: string
+
+    required: true
+
+    description:
+      所属业务领域
+
+
+
+  requirement_type:
+
+
+    type: array
+
+
+    required: true
+
+
+    description:
+      需求类型
+
+
+    enum:
+
+      - dashboard
+      - metric_analysis
+      - fact_creation
+      - data_extract
+      - other
+
+
+
+  description:
+
+    type: string
+
+    required: false
+
+
+
+
+
+# 输入资料信息
+source_context:
+
+
+  requirement_documents:
+
+    type: array
+
+    required: true
+
+
+  prototype_files:
+
+    type: array
+
+    required: false
+
+
+  metadata_files:
+
+    type: array
+
+    required: false
+
+
+  business_rule_files:
+
+    type: array
+
+    required: false
+
+    description:
+      业务规则补充文件
+
+
+
+
+
+# 业务理解
+business_overview:
+
+
+  business_goal:
+
+
+    type: string
+
+
+    required: true
+
+
+
+  business_process:
+
+
+    type: array
+
+
+    item:
+
+
+      step_no:
+
+        type: integer
+
+
+      step_name:
+
+        type: string
+
+
+      description:
+
+        type: string
+
+
+
+
+
+# 原型分析
+dashboard_analysis:
+
+
+  pages:
+
+
+    type: array
+
+
+    item:
+
+
+      page_id:
+
+        type: string
+
+
+      page_name:
+
+        type: string
+
+
+      purpose:
+
+        type: string
+
+
+      components:
+
+
+        type: array
+
+
+        item:
+
+
+          component_type:
+
+
+            enum:
+
+              - metric_card
+              - line_chart
+              - bar_chart
+              - pie_chart
+              - table
+              - other
+
+
+
+          related_metrics:
+
+
+            type: array
+
+            item:
+
+              type: string
+
+
+
+
+
+# 业务实体
+business_entities:
+
+
+  type: array
+
+
+  item:
+
+
+    entity_id:
+
+      type: string
+
+
+
+    entity_name:
+
+      type: string
+
+
+
+    description:
+
+      type: string
+
+
+
+    business_grain:
+
+      type: string
+
+
+
+    key_attributes:
+
+
+      type: array
+
+      item:
+
+        type: string
+
+
+
+
+
+# 指标体系
+metrics:
+
+
+  atomic_metrics:
+
+
+    type: array
+
+
+    item:
+
+
+      metric_id:
+
+        type: string
+
+
+
+      metric_status:
+
+
+        enum:
+
+          - draft
+          - pending_confirmation
+          - confirmed
+
+
+
+      metric_name:
+
+        type: string
+
+
+
+      metric_type:
+
+
+        constant:
+
+          atomic
+
+
+
+      definition:
+
+        type: string
+
+
+
+      statistic_object:
+
+        type: string
+
+
+
+      statistic_grain:
+
+        type: string
+
+
+        description:
+          最细统计对象粒度
+
+
+
+      analysis_dimensions:
+
+
+        type: array
+
+
+        item:
+
+          type: string
+
+
+
+      calculation_logic:
+
+        type: string
+
+
+
+      business_rule:
+
+
+        type: array
+
+
+        item:
+
+          type: string
+
+
+
+      development_hint:
+
+
+        type: array
+
+
+        item:
+
+          type: string
+
+
+
+
+
+  derived_metrics:
+
+
+    type: array
+
+
+    item:
+
+
+      metric_id:
+
+        type: string
+
+
+
+      metric_status:
+
+
+        enum:
+
+          - draft
+          - pending_confirmation
+          - confirmed
+
+
+
+      metric_name:
+
+        type: string
+
+
+
+      definition:
+
+        type: string
+
+
+
+      formula:
+
+        type: string
+
+
+
+      metric_dependencies:
+
+
+        type: array
+
+
+        item:
+
+          type: string
+
+
+
+      components:
+
+
+        type: array
+
+
+        item:
+
+
+          metric_id:
+
+            type: string
+
+
+          role:
+
+
+            enum:
+
+              - numerator
+              - denominator
+              - component
+
+
+
+      statistic_grain:
+
+        type: string
+
+
+
+      analysis_dimensions:
+
+
+        type: array
+
+
+        item:
+
+          type: string
+
+
+
+
+
+  trend_metrics:
+
+
+    type: array
+
+
+    item:
+
+
+      metric_id:
+
+        type: string
+
+
+
+      metric_name:
+
+        type: string
+
+
+
+      time_dimension:
+
+        type: string
+
+
+
+      analysis_dimension:
+
+
+        type: array
+
+
+        item:
+
+          type: string
+
+
+
+      measure_metric:
+
+        type: string
+
+
+
+
+
+# 数据可实现性初判
+data_feasibility_check:
+
+
+  type: array
+
+
+  item:
+
+
+    metric_id:
+
+      type: string
+
+
+
+    feasibility_status:
+
+
+      enum:
+
+
+        - possible
+        - partial
+        - impossible
+        - unknown
+
+
+
+    evidence:
+
+
+      type: array
+
+
+      item:
+
+        type: string
+
+
+
+    candidate_sources:
+
+
+      tables:
+
+
+        type: array
+
+
+        item:
+
+          type: string
+
+
+
+      candidate_fields:
+
+
+        type: array
+
+
+        item:
+
+          type: string
+
+
+
+    risk:
+
+
+      type: array
+
+
+      item:
+
+        type: string
+
+
+
+    missing_information:
+
+
+      type: array
+
+
+      item:
+
+        type: string
+
+
+
+
+
+# 待确认问题
+business_questions:
+
+
+  type: array
+
+
+  item:
+
+
+    question_id:
+
+      type: string
+
+
+
+    question_type:
+
+
+      enum:
+
+
+        - business
+        - technical
+
+
+
+    related_metric:
+
+
+      type: array
+
+
+      item:
+
+        type: string
+
+
+
+    question:
+
+      type: string
+
+
+
+    impact:
+
+      type: string
+
+
+
+    priority:
+
+
+      enum:
+
+
+        - high
+        - medium
+        - low
+
+
+
+    blocking:
+
+
+      type: boolean
+
+
+
+    status:
+
+
+      enum:
+
+
+        - pending
+        - confirmed
+
+
+
+    answer:
+
+      type: string
+
+
+
+
+
+# 确认状态
+confirmation:
+
+
+  business_status:
+
+
+    enum:
+
+
+      - draft
+      - waiting_confirmation
+      - confirmed
+
+
+
+  data_status:
+
+
+    enum:
+
+
+      - pending
+      - confirmed
+
+
+
+  model_status:
+
+
+    enum:
+
+
+      - pending
+      - confirmed
+
+
+
+  confirmed_by:
+
+    type: string
+
+
+
+  confirmed_time:
+
+    type: string

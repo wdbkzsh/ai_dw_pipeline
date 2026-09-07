@@ -1,0 +1,751 @@
+schema_version: '1.1'
+source:
+  system: 苍穹数据字典
+  input_type: full_html
+  parser: cq_dict_batch_to_yaml
+  file: tk_wens_recbrlrflk.html
+table:
+  entity_id: wens_recbrlrflk_pig
+  name: 养猪畜禽档案
+  physical_table: tk_wens_recbrlrflk
+  databases:
+  - rearer_breeding
+  - next_rearer_fatten
+  application: 养户基础资料
+  application_description: ''
+  inheritance_path: 基础资料模板（bos_basetpl） -> 基础资料带组织模板（bos_baseorgtpl） -> 畜禽档案（wens_recbrlrflk） -> 养猪畜禽档案（wens_recbrlrflk_pig）
+fields:
+- storage: fnumber
+  identifier: number
+  name: 编码
+  control_type: 文本
+  required: true
+- storage: fname
+  identifier: name
+  name: 名称
+  control_type: 多语言文本
+  required: true
+- storage: fstatus
+  identifier: status
+  name: 数据状态
+  control_type: 单据状态
+  enum:
+    A: 暂存
+    B: 已提交
+    C: 已审核
+- storage: fcreatorid
+  identifier: creator
+  name: 创建人
+  control_type: 人员
+  reference: bos_user
+- storage: fmodifierid
+  identifier: modifier
+  name: 修改人
+  control_type: 人员
+  reference: bos_user
+- storage: fenable
+  identifier: enable
+  name: 使用状态
+  control_type: 单据状态
+  enum:
+    '0': 禁用
+    '1': 可用
+- storage: fcreatetime
+  identifier: createtime
+  name: 创建时间
+  control_type: 日期
+- storage: fmodifytime
+  identifier: modifytime
+  name: 修改时间
+  control_type: 日期
+- storage: fmasterid
+  identifier: masterid
+  name: 主数据内码
+  control_type: 主数据内码
+- storage: fcreateorgid
+  identifier: createorg
+  name: 创建组织1(没用)
+  control_type: 组织
+  required: true
+  reference: bos_org
+- storage: forgid
+  identifier: org
+  name: 创建组织（没用）
+  control_type: 组织
+  reference: bos_org
+- storage: fk_wens_seed_nouse
+  identifier: useorg
+  name: 苗源（没用）
+  control_type: 组织
+  reference: bos_org
+- storage: fctrlstrategy
+  identifier: ctrlstrategy
+  name: 控制策略
+  control_type: 下拉列表
+  enum:
+    '1': 逐级分配
+    '2': 自由分配
+    '5': 全局共享
+    '6': 管控范围内共享
+    '7': 私有
+- storage: fsourcedataid
+  identifier: sourcedata
+  name: 原资料id
+  control_type: 长整数
+- storage: fbitindex
+  identifier: bitindex
+  name: 位图
+  control_type: 整数
+- storage: fsourcebitindex
+  identifier: srcindex
+  name: 原资料位图
+  control_type: 整数
+- storage: fsrccreateorgid
+  identifier: srccreateorg
+  name: 原创建组织
+  control_type: 组织
+  reference: bos_org
+- storage: fk_wens_recrearer
+  identifier: wens_recrearer
+  name: 养户档案名称
+  control_type: 基础资料
+  required: true
+  reference: wens_rearer_farm_pig
+- storage: fk_wens_material
+  identifier: wens_material
+  name: 饲养品种
+  control_type: 基础资料
+  reference: bd_material
+- storage: fk_wens_flkstatus
+  identifier: wens_flkstatus
+  name: 猪群状态
+  control_type: 下拉列表
+  enum:
+    '0': 申请领苗
+    '1': 在养
+    '2': 已上市
+    '3': 已结算
+- storage: fk_wens_seedtime
+  identifier: wens_seedtime
+  name: 首次进苗日期
+  control_type: 日期
+- storage: fk_wens_raidays
+  identifier: wens_raidays
+  name: 首次仔苗天龄
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: fk_wens_stockqty
+  identifier: wens_stockqty
+  name: 存栏量
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: fk_wens_deadqty
+  identifier: wens_deadqty
+  name: 总死淘数
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: fk_wens_batch
+  identifier: wens_batch
+  name: 饲养批次
+  control_type: 整数
+- storage: fk_wens_cockchickqty
+  identifier: wens_cockchickqty
+  name: 公苗数量
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: fk_wens_adoptwt
+  identifier: wens_adoptwt
+  name: 领苗总重量（斤）
+  control_type: 小数
+  notes:
+  - 为零显示
+- storage: fk_wens_adoptamt
+  identifier: wens_adoptamt
+  name: 苗总价（元）
+  control_type: 小数
+  notes:
+  - 为零显示
+- storage: fk_wens_feedwt
+  identifier: wens_feedwt
+  name: 领料总重量（KG）
+  control_type: 小数
+  notes:
+  - 为零显示
+- storage: fk_wens_feedamt
+  identifier: wens_feedamt
+  name: 领料总金额（元）
+  control_type: 小数
+  notes:
+  - 为零显示
+- storage: fk_wens_drugamt
+  identifier: wens_drugamt
+  name: 领药总金额（元）
+  control_type: 小数
+  notes:
+  - 为零显示
+- storage: fk_wens_lastbaldate
+  identifier: wens_lastbaldate
+  name: 上群结算日期
+  control_type: 日期
+- storage: fk_wens_baldate
+  identifier: wens_baldate
+  name: 本群结算日期
+  control_type: 日期
+- storage: fk_wens_cockmrtqty
+  identifier: wens_cockmrtqty
+  name: 公上市数量
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: fk_wens_henmrtqty
+  identifier: wens_henmrtqty
+  name: 母上市数量
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: fk_wens_mtrqty
+  identifier: wens_mtrqty
+  name: 上市总数量
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: fk_wens_genderflk
+  identifier: wens_genderflk
+  name: 饲养组合
+  control_type: 下拉列表
+  enum:
+    '0': 纯公
+    '1': 纯母
+    '2': 混群
+- storage: fk_wens_useorg
+  identifier: wens_useorg
+  name: 业务组织
+  control_type: 组织
+  required: true
+  reference: bos_org
+- storage: fk_wens_feedsource
+  identifier: wens_feedsource
+  name: 苗源
+  control_type: 组织
+  reference: bos_org
+- storage: fk_wens_feedmodel
+  identifier: wens_feedmodel
+  name: 饲养模式
+  control_type: 基础资料
+  reference: wens_feedmodel
+- storage: fk_wens_balplantype
+  identifier: wens_balplantype
+  name: 结算方案类型
+  control_type: 基础资料
+  reference: wens_balplantype
+- storage: fk_wens_avadoptdate
+  identifier: wens_avadoptdate
+  name: 加权进苗日期
+  control_type: 日期
+- storage: fk_wens_listdate
+  identifier: wens_listdate
+  name: 清栏日期
+  control_type: 日期
+- storage: fk_wens_easid
+  identifier: wens_easid
+  name: EASID
+  control_type: 文本
+- storage: fk_wens_initorg
+  identifier: wens_initorg
+  name: 创建组织
+  control_type: 组织
+  required: true
+  reference: bos_org
+- storage: fk_wens_avg_weight
+  identifier: wens_avg_weight
+  name: 领苗均重（斤）
+  control_type: 小数
+  notes:
+  - 为零显示
+- storage: fk_wens_avraiday
+  identifier: wens_avraiday
+  name: 加权仔苗天龄
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: fk_wens_combofield
+  identifier: wens_combofield
+  name: 用工模式
+  control_type: 下拉列表
+  enum:
+    '0': 养户养殖
+    '1': 老板户
+    '2': 员工养殖
+    '3': 劳务工养殖
+- storage: fk_wens_chickqty
+  identifier: wens_chickqty
+  name: 苗总数量
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: fk_wens_henchickqty
+  identifier: wens_henchickqty
+  name: 母苗数量
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: fk_wens_estimateqty
+  identifier: wens_estimateqty
+  name: 预计领苗数量
+  control_type: 整数
+  notes:
+  - 允许为空
+  - 为零显示
+- storage: fk_wens_zwiscost
+  identifier: wens_zwiscost
+  name: 杂物是否计入成本
+  control_type: 复选框
+- storage: fk_wens_breeding_pig
+  identifier: wens_is_breeding_pig
+  name: 是否代养种猪
+  control_type: 下拉列表
+  enum:
+    '0': 否
+    '1': 是
+- storage: fk_wens_is_keypig
+  identifier: wens_is_keypig
+  name: 是否重点猪群
+  control_type: 复选框
+- storage: fk_wens_purchase_all
+  identifier: wens_purchase_all
+  name: 上市回收完毕
+  control_type: 复选框
+- storage: fk_wens_resurebaltype
+  identifier: wens_resurebaltype
+  name: 是否已再次确认结算类型
+  control_type: 复选框
+- storage: fk_wens_is_preprofit
+  identifier: wens_is_preprofit
+  name: 是否预提利润
+  control_type: 复选框
+- storage: fk_wens_delaydate
+  identifier: wens_delaydate
+  name: 限制上市日期
+  control_type: 日期
+- storage: fk_wens_chklastdate
+  identifier: wens_chklastdate
+  name: 上次巡查日期
+  control_type: 日期
+- storage: fk_wens_pur_days
+  identifier: wens_pur_days
+  name: 上市天龄
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: fk_wens_remark
+  identifier: wens_remark
+  name: 备注
+  control_type: 文本
+- storage: fk_wens_konglan_day
+  identifier: wens_konglan_day
+  name: 空栏天数
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: fk_wens_eas_modifytime
+  identifier: wens_eas_modifytime
+  name: eas最后修改时间
+  control_type: 长日期
+- storage: fk_wens_environ_score
+  identifier: wens_environ_score
+  name: 环保得分
+  control_type: 小数
+- storage: fk_wens_balplannumber
+  identifier: wens_balplannumber
+  name: 结算方案编号
+  control_type: 基础资料
+  reference: wens_technormnum
+- storage: fk_wens_growdays
+  identifier: wens_growdays
+  name: 生长天龄
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: fk_wens_avgfeeddays
+  identifier: wens_avgfeeddays
+  name: 转出户加权饲养天龄
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: fk_wens_breeding_farm
+  identifier: wens_breeding_farm
+  name: 养猪场
+  control_type: 基础资料
+  reference: wens_breeding_farm
+- storage: ''
+  identifier: wens_isbreed_area
+  name: 是否养殖小区
+  control_type: 基础资料属性
+  notes:
+  - 取自【养猪场】
+- storage: fk_wens_highdensityswitch
+  identifier: wens_highdensityswitch
+  name: 是否启用高密度
+  control_type: 复选框
+- storage: fk_wens_ishighdensitymet
+  identifier: wens_ishighdensitymet
+  name: 是否达到高密度
+  control_type: 复选框
+- storage: fk_wens_old_breedpig
+  identifier: wens_old_breedpig
+  name: 原是否代养种猪
+  control_type: 下拉列表
+  enum:
+    '0': 否
+    '1': 是
+- storage: fk_wens_feeddays
+  identifier: wens_feeddays
+  name: 饲养天龄
+  control_type: 整数
+  notes:
+  - 为零显示
+- storage: ''
+  identifier: wens_pigraisezone
+  name: 养殖小区
+  control_type: 基础资料属性
+  notes:
+  - 取自【养猪场】
+- storage: fk_wens_listweight
+  identifier: wens_listweight
+  name: 上市总重量（斤）
+  control_type: 小数
+- storage: tk_wens_recbrlrflk_pigtag
+  identifier: wens_breed_pigtag
+  name: 猪群标签
+  control_type: 多选基础资料
+  reference: wens_breed_pigtag
+- storage: ''
+  identifier: wens_ahventitycode
+  name: 畜牧兽医生产经营主体代码
+  control_type: 基础资料属性
+  notes:
+  - 取自【养猪场】
+entries:
+- storage: fk_wens_buildentry1
+  identifier: wens_buildentry_history
+  name: 单据体
+  control_type: 分录
+  fields:
+  - storage: fk_wens_cage_record
+    identifier: wens_cage_history
+    name: 栋舍
+    control_type: 基础资料
+    reference: wens_breeding_cage_record
+  - storage: fk_wens_basedatapropfield
+    identifier: wens_cage_num_history
+    name: 编码
+    control_type: 基础资料属性
+    notes:
+    - 取自【栋舍】
+  - storage: fk_wens_basedatapropfield1
+    identifier: wens_capacity_qty_history
+    name: 有效饲养规模
+    control_type: 基础资料属性
+    notes:
+    - 取自【栋舍】
+- storage: tk_wens_adoptentry
+  identifier: wens_adoptentry
+  name: 单据体
+  control_type: 分录
+  fields:
+  - storage: fk_wens_material
+    identifier: wens_basedatafield
+    name: 品种
+    control_type: 基础资料
+    reference: bd_material
+  - storage: fk_wens_qty
+    identifier: wens_mat_qty
+    name: 数量
+    control_type: 整数
+  - storage: fk_wens_gender
+    identifier: wens_gender
+    name: 性别
+    control_type: 下拉列表
+    enum:
+      Male: 公
+      Female: 母
+  - storage: fk_wens_mrtqty
+    identifier: wens_mat_mrtqty
+    name: 已上市数量
+    control_type: 整数
+  - storage: fk_wens_deadqty
+    identifier: wens_mat_deadqty
+    name: 已死亡数量
+    control_type: 整数
+  - storage: fk_wens_pig_oarclasscode
+    identifier: wens_mat_boarclasscode
+    name: 品系
+    control_type: 基础资料
+    reference: wens_pig_boarclasscode
+- storage: tk_wens_bulidentry
+  identifier: wens_buildentry
+  name: 单据体
+  control_type: 分录
+  fields:
+  - storage: fk_wens_basedatafield1
+    identifier: wens_cage
+    name: 栋舍
+    control_type: 基础资料
+    reference: wens_fatten_base_cage
+  - storage: ''
+    identifier: wens_cage_num
+    name: 编码
+    control_type: 基础资料属性
+    notes:
+    - 取自【栋舍】
+  - storage: ''
+    identifier: wens_capacity_qty
+    name: 有效饲养规模
+    control_type: 基础资料属性
+    notes:
+    - 取自【栋舍】
+  - storage: fk_wens_cage
+    identifier: wens_cage
+    name: 栋舍
+    control_type: 基础资料
+    reference: wens_breeding_cage
+  - storage: fk_wens_breed_prodline
+    identifier: wens_breed_prodline
+    name: 生产线
+    control_type: 基础资料
+    reference: wens_breed_prodline
+  - storage: fk_wens_breedperson
+    identifier: wens_breedperson
+    name: 饲养员工
+    control_type: 基础资料
+    reference: bos_user
+- storage: fk_wens_entryentity
+  identifier: wens_entryentity
+  name: 单据体
+  control_type: 分录
+  fields:
+  - storage: fk_wens_operatetype
+    identifier: wens_operatetype
+    name: 操作类型
+    control_type: 下拉列表
+    enum:
+      hand: 人为标记
+      auto: 程序标记
+  - storage: fk_wens_changeinfo
+    identifier: wens_changeinfo
+    name: 变更内容
+    control_type: 文本
+  - storage: fk_wens_changeuser
+    identifier: wens_changeuser
+    name: 变更人
+    control_type: 人员
+    reference: bos_user
+  - storage: fk_wens_changetime
+    identifier: wens_changetime
+    name: 变更时间
+    control_type: 长日期
+  - storage: fk_wens_changetype
+    identifier: wens_changetype
+    name: 变更类型
+    control_type: 下拉列表
+    enum:
+      in: 标记
+      out: 退出
+  - storage: fk_wens_stageinterval
+    identifier: wens_stageinterval
+    name: 阶段间隔(天)
+    control_type: 整数
+  - storage: fk_wens_changereason
+    identifier: wens_changereason
+    name: 变更原因
+    control_type: 文本
+relationships:
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: fcreatorid
+  source_identifier: creator
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: fmodifierid
+  source_identifier: modifier
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: fcreateorgid
+  source_identifier: createorg
+  target_entity: bos_org
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: forgid
+  source_identifier: org
+  target_entity: bos_org
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: fk_wens_seed_nouse
+  source_identifier: useorg
+  target_entity: bos_org
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: fsrccreateorgid
+  source_identifier: srccreateorg
+  target_entity: bos_org
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: fk_wens_recrearer
+  source_identifier: wens_recrearer
+  target_entity: wens_rearer_farm_pig
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: fk_wens_material
+  source_identifier: wens_material
+  target_entity: bd_material
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: fk_wens_useorg
+  source_identifier: wens_useorg
+  target_entity: bos_org
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: fk_wens_feedsource
+  source_identifier: wens_feedsource
+  target_entity: bos_org
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: fk_wens_feedmodel
+  source_identifier: wens_feedmodel
+  target_entity: wens_feedmodel
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: fk_wens_balplantype
+  source_identifier: wens_balplantype
+  target_entity: wens_balplantype
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: fk_wens_initorg
+  source_identifier: wens_initorg
+  target_entity: bos_org
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: fk_wens_balplannumber
+  source_identifier: wens_balplannumber
+  target_entity: wens_technormnum
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: fk_wens_breeding_farm
+  source_identifier: wens_breeding_farm
+  target_entity: wens_breeding_farm
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_recbrlrflk_pig
+  source_scope: header
+  source_storage: tk_wens_recbrlrflk_pigtag
+  source_identifier: wens_breed_pigtag
+  target_entity: wens_breed_pigtag
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: fk_wens_buildentry1
+  parent_entity: wens_recbrlrflk_pig
+  source_scope: entry:fk_wens_buildentry1
+  source_storage: fk_wens_cage_record
+  source_identifier: wens_cage_history
+  target_entity: wens_breeding_cage_record
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: tk_wens_adoptentry
+  parent_entity: wens_recbrlrflk_pig
+  source_scope: entry:tk_wens_adoptentry
+  source_storage: fk_wens_material
+  source_identifier: wens_basedatafield
+  target_entity: bd_material
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: tk_wens_adoptentry
+  parent_entity: wens_recbrlrflk_pig
+  source_scope: entry:tk_wens_adoptentry
+  source_storage: fk_wens_pig_oarclasscode
+  source_identifier: wens_mat_boarclasscode
+  target_entity: wens_pig_boarclasscode
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: tk_wens_bulidentry
+  parent_entity: wens_recbrlrflk_pig
+  source_scope: entry:tk_wens_bulidentry
+  source_storage: fk_wens_basedatafield1
+  source_identifier: wens_cage
+  target_entity: wens_fatten_base_cage
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: tk_wens_bulidentry
+  parent_entity: wens_recbrlrflk_pig
+  source_scope: entry:tk_wens_bulidentry
+  source_storage: fk_wens_cage
+  source_identifier: wens_cage
+  target_entity: wens_breeding_cage
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: tk_wens_bulidentry
+  parent_entity: wens_recbrlrflk_pig
+  source_scope: entry:tk_wens_bulidentry
+  source_storage: fk_wens_breed_prodline
+  source_identifier: wens_breed_prodline
+  target_entity: wens_breed_prodline
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: tk_wens_bulidentry
+  parent_entity: wens_recbrlrflk_pig
+  source_scope: entry:tk_wens_bulidentry
+  source_storage: fk_wens_breedperson
+  source_identifier: wens_breedperson
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: fk_wens_entryentity
+  parent_entity: wens_recbrlrflk_pig
+  source_scope: entry:fk_wens_entryentity
+  source_storage: fk_wens_changeuser
+  source_identifier: wens_changeuser
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+metadata_gaps:
+- physical_primary_key
+- database_data_types
+- length_precision_scale
+- nullability
+- default_values
+- partition_columns
+- physical_join_keys
+- relationship_cardinality

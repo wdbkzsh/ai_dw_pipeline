@@ -1,0 +1,268 @@
+schema_version: '1.1'
+source:
+  system: 苍穹数据字典
+  input_type: full_html
+  parser: cq_dict_batch_to_yaml
+  file: tk_wens_production_anomal.html
+table:
+  entity_id: wens_production_anomaly
+  name: 农户生产异常预警
+  physical_table: tk_wens_production_anomal
+  databases:
+  - rearer_breeding
+  - next_rearer_fatten
+  application: 育肥作业管理
+  application_description: ''
+  inheritance_path: 单据模板（bos_billtpl） -> 单据带组织模板（bos_billorgtpl） -> 农户生产异常预警（wens_production_anomaly）
+fields:
+- storage: fbillno
+  identifier: billno
+  name: 单据编号
+  control_type: 单据编号
+  required: true
+- storage: fbillstatus
+  identifier: billstatus
+  name: 单据状态
+  control_type: 单据状态
+  required: true
+  enum:
+    A: 暂存
+    B: 已提交
+    C: 已审核
+- storage: fcreatorid
+  identifier: creator
+  name: 创建人
+  control_type: 人员
+  reference: bos_user
+- storage: fmodifierid
+  identifier: modifier
+  name: 修改人
+  control_type: 人员
+  reference: bos_user
+- storage: fauditorid
+  identifier: auditor
+  name: 审核人
+  control_type: 人员
+  reference: bos_user
+- storage: fauditdate
+  identifier: auditdate
+  name: 审核日期
+  control_type: 长日期
+- storage: fmodifytime
+  identifier: modifytime
+  name: 修改时间
+  control_type: 日期
+- storage: fcreatetime
+  identifier: createtime
+  name: 创建时间
+  control_type: 日期
+- storage: forgid
+  identifier: org
+  name: 组织
+  control_type: 组织
+  reference: bos_org
+- storage: fk_wens_basedatafield
+  identifier: wens_rearer_farm_pig
+  name: 养户
+  control_type: 基础资料
+  reference: wens_rearer_farm_pig
+- storage: fk_wens_recbrlrflk_pig
+  identifier: wens_recbrlrflk_pig
+  name: 猪群编码
+  control_type: 基础资料
+  reference: wens_recbrlrflk_pig
+- storage: fk_wens_alert_metric
+  identifier: wens_alert_metric
+  name: 预警指标
+  control_type: 下拉列表
+  enum:
+    '1': 两周死淘率
+    '2': 五周死淘率
+    '3': 单日死淘率
+    '4': 连续2天死淘率
+    '5': 连续3天死淘率
+    '6': 连续4天死淘率
+    '7': 单日采食量
+    '8': 连续2天采食量
+    '9': 连续3天采食量
+- storage: fk_wens_alarm_level
+  identifier: wens_alarm_level
+  name: 预警等级
+  control_type: 下拉列表
+  enum:
+    '1': 一级告警
+    '2': 二级告警
+    '3': 三级告警
+    '4': 四级告警
+- storage: fk_wens_alarm_value
+  identifier: wens_alarm_value
+  name: 触发预警时数值
+  control_type: 文本
+- storage: fk_wens_alarm_time
+  identifier: wens_alarm_time
+  name: 预警时间
+  control_type: 长日期
+- storage: fk_wens_status
+  identifier: wens_status
+  name: 预警状态
+  control_type: 下拉列表
+  enum:
+    '1': 持续中
+    '2': 已关闭
+    '3': 仅通知
+- storage: fk_wens_closing_time
+  identifier: wens_closing_time
+  name: 预警关闭时间
+  control_type: 长日期
+- storage: fk_wens_largetextfield
+  identifier: wens_close_reason
+  name: 预警关闭原因
+  control_type: 大文本
+- storage: fk_wens_duration
+  identifier: wens_duration
+  name: 持续时长
+  control_type: 整数
+- storage: tk_wens_alert_receiver
+  identifier: wens_alert_receiver
+  name: 预警接收人
+  control_type: 多选基础资料
+  reference: bos_user
+- storage: fk_wens_patrol_operator
+  identifier: wens_patrol_operator
+  name: 巡查处理人
+  control_type: 基础资料
+  reference: bos_user
+- storage: fk_wens_is_generate_ticke
+  identifier: wens_is_generate_ticket
+  name: 是否巡查
+  control_type: 复选框
+- storage: fk_wens_is_daily_report
+  identifier: wens_is_daily_report
+  name: 是否显示日报
+  control_type: 复选框
+- storage: fk_wens_alert_content_t
+  identifier: wens_alert_content
+  name: 预警内容
+  control_type: 大文本
+entries:
+- storage: wens_production_anomaly_e
+  identifier: entryentity
+  name: 单据体
+  control_type: 分录
+  fields:
+  - storage: fmodifierfield
+    identifier: modifierfield
+    name: 修改人
+    control_type: 人员
+    reference: bos_user
+  - storage: fmodifydatefield
+    identifier: modifydatefield
+    name: 修改时间
+    control_type: 日期
+  - storage: fk_wens_user
+    identifier: wens_user
+    name: 姓名
+    control_type: 人员
+    reference: bos_user
+  - storage: fk_wens_org_l_name
+    identifier: wens_org_l_name
+    name: 行政组织
+    control_type: 文本
+  - storage: fk_wens_textfield1
+    identifier: wens_employee_number
+    name: 工号
+    control_type: 文本
+  - storage: fk_wens_source
+    identifier: wens_source
+    name: 来源
+    control_type: 文本
+  - storage: fk_wens_push_time
+    identifier: wens_push_time
+    name: 推送时间
+    control_type: 长日期
+  - storage: fk_wens_tcheck_status
+    identifier: wens_tcheck_status
+    name: 状态
+    control_type: 文本
+relationships:
+- source_entity: wens_production_anomaly
+  source_scope: header
+  source_storage: fcreatorid
+  source_identifier: creator
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_production_anomaly
+  source_scope: header
+  source_storage: fmodifierid
+  source_identifier: modifier
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_production_anomaly
+  source_scope: header
+  source_storage: fauditorid
+  source_identifier: auditor
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_production_anomaly
+  source_scope: header
+  source_storage: forgid
+  source_identifier: org
+  target_entity: bos_org
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_production_anomaly
+  source_scope: header
+  source_storage: fk_wens_basedatafield
+  source_identifier: wens_rearer_farm_pig
+  target_entity: wens_rearer_farm_pig
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_production_anomaly
+  source_scope: header
+  source_storage: fk_wens_recbrlrflk_pig
+  source_identifier: wens_recbrlrflk_pig
+  target_entity: wens_recbrlrflk_pig
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_production_anomaly
+  source_scope: header
+  source_storage: tk_wens_alert_receiver
+  source_identifier: wens_alert_receiver
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_production_anomaly
+  source_scope: header
+  source_storage: fk_wens_patrol_operator
+  source_identifier: wens_patrol_operator
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_production_anomaly_e
+  parent_entity: wens_production_anomaly
+  source_scope: entry:wens_production_anomaly_e
+  source_storage: fmodifierfield
+  source_identifier: modifierfield
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+- source_entity: wens_production_anomaly_e
+  parent_entity: wens_production_anomaly
+  source_scope: entry:wens_production_anomaly_e
+  source_storage: fk_wens_user
+  source_identifier: wens_user
+  target_entity: bos_user
+  kind: ui_reference
+  cardinality: unknown
+metadata_gaps:
+- physical_primary_key
+- database_data_types
+- length_precision_scale
+- nullability
+- default_values
+- partition_columns
+- physical_join_keys
+- relationship_cardinality
