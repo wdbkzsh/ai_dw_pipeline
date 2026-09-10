@@ -1,0 +1,86 @@
+# WENSEAS Data Asset Analysis Schema
+# Data Analysis Agent Output Contract
+
+data_asset_analysis:
+
+  metrics:
+
+    type: array
+
+    items:
+
+      metric_id:
+        type: string
+
+      metric_name:
+        type: string
+
+      required_business_objects:
+
+        type: array
+
+        items:
+          type: string
+
+      source_tables:
+
+        type: array
+
+        items:
+
+          table_name:
+            type: string
+            description: WENSEAS逻辑表名
+
+          physical_table:
+            type: string
+            description: WENSEAS物理表名
+
+          data_layer:
+            type: string
+            default: WENSEAS
+
+          table_description:
+            type: string
+
+          table_role:
+
+            enum:
+              - business_transaction
+              - master_data
+              - relation_data
+              - auxiliary_data
+              - unknown
+
+          business_role:
+            type: string
+
+          support_fields:
+
+            type: array
+
+            items:
+
+              field_name:
+                type: string
+
+              field_usage:
+                type: string
+
+              field_description:
+                type: string
+
+          missing_fields:
+
+            type: array
+
+            items:
+              type: string
+
+          support_status:
+
+            enum:
+              - supported
+              - partial
+              - unsupported
+              - unknown

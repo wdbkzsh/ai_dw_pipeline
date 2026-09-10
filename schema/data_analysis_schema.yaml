@@ -50,145 +50,110 @@ project:
 # ==========================================
 
 data_asset_analysis:
+  source_layer:
 
+
+    type: string
+
+
+    default: WENSEAS
+
+
+    description:
+
+      当前数据分析基础层
 
   metrics:
 
-
     type: array
-
 
     items:
 
-
       metric_id:
-
         type: string
-
 
       metric_name:
-
         type: string
-
-
 
       required_business_objects:
 
-
         type: array
 
-
-        description:
-          指标涉及的业务对象
-
-
         items:
-
           type: string
-
-
 
       source_tables:
 
-
         type: array
-
-
-        description:
-          候选源数据表
-
 
         items:
 
+          source_type:
+            
+            type: string
 
+            enum:
+
+              - candidate
+
+              - confirmed
 
           table_name:
-
             type: string
+            description: WENSEAS逻辑表名
 
+          physical_table:
+            type: string
+            description: WENSEAS物理表名
 
+          data_layer:
+            type: string
+            default: WENSEAS
 
           table_description:
-
             type: string
-
-
-
-          source_system:
-
-            type: string
-
-
 
           table_role:
 
-
             enum:
-
-
-              - transaction
-
-              - master
-
-              - relation
-
+              - transaction_data
+              - dimension_data
+              - relation_data
+              - auxiliary_data
               - unknown
 
-
+          business_role:
+            type: string
 
           support_fields:
 
-
             type: array
-
 
             items:
 
-
               field_name:
-
                 type: string
 
+              field_usage:
+                type: string
 
               field_description:
-
                 type: string
-
-
 
           missing_fields:
 
-
             type: array
 
-
             items:
-
               type: string
-
-
 
           support_status:
 
-
             enum:
-
-
               - supported
-
               - partial
-
               - unsupported
-
               - unknown
-
-
-
-          analysis_note:
-
-
-            type: string
-
 
 
 
@@ -241,6 +206,17 @@ grain_analysis:
 
 
       grain_basis:
+
+
+        type: array
+
+
+        items:
+
+
+          type: string
+
+      grain_evidence:
 
 
         type: array
@@ -492,7 +468,18 @@ metric_implementation_analysis:
 
               items:
 
-                type: string
+                field_name:
+
+                  type: string
+                
+                field_usage:
+
+                  type: string
+
+                description:
+
+                  type: string
+
 
 
 
@@ -667,6 +654,47 @@ model_design_input:
       type: string
 
 
+  confirmed_source_tables:
+
+
+    type: array
+
+
+    items:
+
+
+      table_name:
+
+        type: string
+
+
+      business_role:
+
+        type: string
+
+
+  confirmed_entity_relationships:
+
+
+    type: array
+
+
+    items:
+
+
+      source_entity:
+
+        type: string
+
+
+      target_entity:
+
+        type: string
+
+
+      relationship_type:
+
+        type: string
 
   required_model_considerations:
 
